@@ -30,7 +30,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /tmp
 
 # 1. Download, build, and install Stanford PBC Library (0.5.14)
-RUN wget --no-check-certificate https://crypto.stanford.edu/pbc/news/pbc-0.5.14.tar.gz \
+RUN wget --no-check-certificate https://crypto.stanford.edu/pbc/files/pbc-0.5.14.tar.gz \
     && tar -xzf pbc-0.5.14.tar.gz \
     && cd pbc-0.5.14 \
     && ./configure --prefix=/usr \
