@@ -16,8 +16,9 @@ attributes gets nothing back. The bilinear-pairing maths simply doesn't produce 
 
 | | |
 |---|---|
-| **Live app** | _add your Vercel URL here after deploying_ |
-| **API** | _add your Render URL here_ (`/api/health` returns `{"status":"ok"}`) |
+| **Live app** | https://securevault-nine-rho.vercel.app (Vercel) |
+| **API** | https://securevault-backend-production-8c4610c9.up.railway.app/api/health (Railway, returns `{"status":"ok"}`) |
+| **Source** | https://github.com/i242034-star/securevault |
 | **Report** | [`documentation_deliverables/SecureVault_Project_Report.pdf`](documentation_deliverables/SecureVault_Project_Report.pdf) |
 | **Slides** | [`documentation_deliverables/SecureVault_Presentation.pptx`](documentation_deliverables/SecureVault_Presentation.pptx) |
 
@@ -64,7 +65,7 @@ flowchart LR
     subgraph Browser["React 19 + Vite (Vercel)"]
         UI[Pages: Login · Dashboard · Document Locker · Attack Lab · Admin · Audit]
     end
-    subgraph API["Flask REST API (Render, Docker, Gunicorn)"]
+    subgraph API["Flask REST API (Railway, Docker, Gunicorn)"]
         BP["/api/auth · /api/documents · /api/admin · /api/audit · /api/attacks"]
         CS[CryptoService<br/>Trusted Authority]
         CE[CharmEngine<br/>BSW07 CP-ABE]
@@ -127,7 +128,7 @@ More diagrams (upload, decryption, revocation, auth, audit chain) are in
 | Server & storage | **Honest-but-curious**; DB, files and backups may leak |
 | Admin | Trusted to assign attributes; never learns user passwords |
 | Users | Malicious: may collude, keep revoked keys, tamper with ciphertexts |
-| Network | Untrusted; TLS provided by Render/Vercel |
+| Network | Untrusted; TLS provided by Railway/Vercel |
 
 **Guarantees:** confidentiality under policy, collusion resistance, ciphertext integrity, forward revocation via epochs,
 tamper-evident audit log. **Not guaranteed:** compromise of the *running* Trusted Authority process (it holds the
@@ -208,13 +209,16 @@ python3 tests/benchmark_performance.py
 
 ## Deployment
 
-**Backend → Render** (Docker). `render.yaml` is a Blueprint: *New → Blueprint →* pick this repo. It builds
-`backend/Dockerfile` and sets `FLASK_ENV=production` plus auto-generated `JWT_SECRET`, `AUDIT_HMAC_SECRET`,
-`MASTER_KEY_PASSPHRASE`. After the frontend is live, set `CORS_ALLOWED_ORIGINS` to its URL.
-The free tier's disk is ephemeral; the app re-creates its authority and demo data on each cold start.
+**Backend → Railway** (Docker, live). *New Project → GitHub Repository →* this repo, then in the service
+settings: Root Directory `/backend` (builder: Dockerfile), healthcheck path `/api/health`. Variables:
+`FLASK_ENV=production`, `FLASK_DEBUG=false`, `SEED_DEMO_DATA=true`, strong random `JWT_SECRET`,
+`AUDIT_HMAC_SECRET`, `MASTER_KEY_PASSPHRASE` (the app refuses to start in production without them), and
+`CORS_ALLOWED_ORIGINS=https://securevault-nine-rho.vercel.app`. The container runs as a non-root user and its disk
+is ephemeral: the app re-creates its authority and demo data on each fresh start.
+`render.yaml` is kept as an equivalent Render Blueprint (Render requires a card on file, so Railway was used).
 
-**Frontend → Vercel.** Import the repo, root directory `frontend`, framework *Vite*, env var
-`VITE_API_BASE_URL=https://<your-render-service>.onrender.com/api`.
+**Frontend → Vercel** (live). Import the repo, root directory `frontend`, framework *Vite*, env var
+`VITE_API_BASE_URL=https://securevault-backend-production-8c4610c9.up.railway.app/api`.
 
 `backend/storage/` (database, encrypted master key, ciphertexts) is git-ignored and docker-ignored. **Never commit it.**
 
@@ -231,7 +235,7 @@ backend/
 frontend/src/  pages/ (Login, Dashboard, Documents, AttackLab, AdminDashboard, AuditLogs), api.js
 documentation_deliverables/  report (PDF/DOCX), slides, diagrams, screenshots
 generate_final_report.py      regenerates the report (DOCX + PDF via Word)
-render.yaml                   Render blueprint
+render.yaml                   alternative Render blueprint (live deploy uses Railway + Vercel)
 ```
 
 ## References
