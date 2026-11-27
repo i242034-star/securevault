@@ -4,4 +4,6 @@ pycryptodome>=3.20.0
 PyJWT>=2.8.0
 gunicorn>=21.2.0
 Werkzeug>=3.0.0
-pyparsing>=3.0.0
+# Runtime dependency of Charm-Crypto's policy parser (charm.toolbox.policytree).
+# Charm's `make install` does not pull it in; pinned to the version the tests ran with.
+pyparsing==3.1.1

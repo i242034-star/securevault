@@ -174,10 +174,12 @@ Charm-Crypto needs Linux, so the backend runs in **WSL2 Ubuntu** (or any Linux /
 ```bash
 # one-time: system libraries, PBC and Charm (same steps as backend/Dockerfile)
 sudo apt-get install -y build-essential flex bison libgmp-dev libssl-dev python3-dev python3-pip
-wget https://crypto.stanford.edu/pbc/news/pbc-0.5.14.tar.gz && tar xzf pbc-0.5.14.tar.gz
+wget https://crypto.stanford.edu/pbc/files/pbc-0.5.14.tar.gz && tar xzf pbc-0.5.14.tar.gz
 (cd pbc-0.5.14 && ./configure --prefix=/usr && make && sudo make install && sudo ldconfig)
-git clone --depth 1 https://github.com/JHUISI/charm.git
-(cd charm && ./configure.sh && make && sudo make install)
+# Charm pinned to the commit the tests pass on (the older v0.63 tag is not compatible)
+mkdir charm && cd charm && git init -q && git remote add origin https://github.com/JHUISI/charm.git
+git fetch --depth 1 origin b2db00be7adf681c6bc35d35be3682ba047b3577 && git checkout FETCH_HEAD
+./configure.sh && make && sudo make install && cd ..
 
 cd backend
 pip3 install -r requirements.txt --break-system-packages

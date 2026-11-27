@@ -29,8 +29,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /tmp
 
-# 1. Download, build, and install Stanford PBC Library (0.5.14)
-RUN wget --no-check-certificate https://crypto.stanford.edu/pbc/files/pbc-0.5.14.tar.gz \
+# 1. Download, verify, build, and install Stanford PBC Library (0.5.14)
+#    TLS is verified and the tarball is pinned by SHA-256 (supply-chain check).
+ARG PBC_SHA256=772527404117587560080241cedaf441e5cac3269009cdde4c588a1dce4c23d2
+RUN wget -q https://crypto.stanford.edu/pbc/files/pbc-0.5.14.tar.gz \
+    && echo "${PBC_SHA256}  pbc-0.5.14.tar.gz" | sha256sum -c - \
     && tar -xzf pbc-0.5.14.tar.gz \
     && cd pbc-0.5.14 \
     && ./configure --prefix=/usr \
@@ -40,9 +43,15 @@ RUN wget --no-check-certificate https://crypto.stanford.edu/pbc/files/pbc-0.5.14
     && cd .. \
     && rm -rf pbc-0.5.14*
 
-# 2. Clone, build, and install Charm-Crypto Framework
-RUN git clone --depth 1 https://github.com/JHUISI/charm.git \
-    && cd charm \
+# 2. Fetch, build, and install Charm-Crypto Framework pinned to an exact commit.
+#    b2db00b (2026-09-10) is the revision the crypto + attack-lab tests pass on.
+#    The older v0.63 release tag is NOT compatible with this code base.
+ARG CHARM_COMMIT=b2db00be7adf681c6bc35d35be3682ba047b3577
+RUN mkdir charm && cd charm \
+    && git init -q \
+    && git remote add origin https://github.com/JHUISI/charm.git \
+    && git fetch -q --depth 1 origin ${CHARM_COMMIT} \
+    && git checkout -q FETCH_HEAD \
     && ./configure.sh --prefix=/usr \
     && make -j$(nproc) \
     && make install \
