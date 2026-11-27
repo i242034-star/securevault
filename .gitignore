@@ -27,6 +27,8 @@ backend/storage/
 # Operating System & IDE
 .DS_Store
 Thumbs.db
+# Microsoft Office lock/owner files (created while a .docx/.pptx is open)
+~$*
 .vscode/
 .idea/
 *.swp
