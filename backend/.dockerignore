@@ -1,0 +1,9 @@
+# Keep local cryptographic state and caches out of the image.
+# The container generates its own Trusted Authority on first boot.
+storage/
+__pycache__/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+.env
+.env.*

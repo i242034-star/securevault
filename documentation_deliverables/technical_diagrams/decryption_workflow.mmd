@@ -1,0 +1,39 @@
+sequenceDiagram
+    autonumber
+    actor Decryptor as Requesting User
+    participant DocAPI as Document API (/api/documents/:id/decrypt)
+    participant KeyStore as KeyStore
+    participant BSW07 as CharmEngine (BSW07)
+    participant Hybrid as HybridCipher
+    participant Audit as AuditChain
+
+    Decryptor->>DocAPI: POST /api/documents/:id/decrypt { password }
+    DocAPI->>DocAPI: Authenticate user session token
+    DocAPI->>DocAPI: Fetch document metadata & active user encrypted_sk envelope
+    DocAPI->>KeyStore: decrypt_user_key(encrypted_sk, password)
+    alt Invalid Password
+        DocAPI->>Audit: record_audit_event(DECRYPT_FAILED, FAILED, "Invalid passphrase")
+        DocAPI-->>Decryptor: 400 Bad Request ("Could not unlock private key")
+    else Private Key Unlocked in Transient RAM
+        DocAPI->>Hybrid: decrypt_document(PK, user_sk, encrypted_package)
+        Hybrid->>BSW07: cpabe.decrypt(PK, user_sk, cpabe_ciphertext)
+        alt User Attributes Do NOT Satisfy Policy Tree
+            BSW07-->>Hybrid: Pairing reconstruction returns None (Mathematical Denial)
+            Hybrid-->>DocAPI: raise AccessDeniedError
+            DocAPI->>Audit: record_audit_event(DECRYPT_DENIED, DENIED, "Policy unsatisfied")
+            DocAPI-->>Decryptor: 403 Forbidden ("Access Denied: Attributes do not satisfy policy")
+        else Attributes Satisfy Policy Tree
+            BSW07-->>Hybrid: Recovered GT element M
+            Hybrid->>Hybrid: AES_key = SHA-256(str(M))
+            Hybrid->>Hybrid: AES-256-GCM.decrypt_and_verify(aes_ciphertext, tag)
+            alt Tampering Detected (Tag mismatch)
+                Hybrid-->>DocAPI: raise TamperError
+                DocAPI->>Audit: record_audit_event(DECRYPT_FAILED, FAILED, "AES tag failure")
+                DocAPI-->>Decryptor: 400 Bad Request ("Ciphertext corrupted or tampered")
+            else Valid Decryption
+                Hybrid-->>DocAPI: Return exact plaintext PDF bytes
+                DocAPI->>Audit: record_audit_event(DECRYPT_SUCCESS, SUCCESS)
+                DocAPI-->>Decryptor: 200 OK (PDF bytes or base64 download)
+            end
+        end
+    end

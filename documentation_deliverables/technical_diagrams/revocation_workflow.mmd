@@ -1,0 +1,36 @@
+sequenceDiagram
+    autonumber
+    actor Admin as Security Admin
+    participant EpochAPI as Admin API (/api/admin/epoch)
+    participant CryptoSvc as CryptoService
+    participant DB as SQLite (system_epochs, users, documents)
+    participant Disk as Storage (/storage/encrypted/)
+    participant Alice as Authorized User (Alice)
+    participant Bob as Revoked User (Bob)
+
+    Admin->>EpochAPI: POST /api/admin/epoch/advance { reason: "User Bob Revoked" }
+    EpochAPI->>CryptoSvc: advance_system_epoch(admin_id, reason)
+    CryptoSvc->>DB: INSERT system_epochs (epoch=2, status='DECLARED')
+    CryptoSvc->>DB: UPDATE users SET pending_key_reissue = 1
+    EpochAPI-->>Admin: 200 OK { current_epoch: 2 }
+
+    Note over Admin,Disk: Staged Document Re-encryption Phase
+    Admin->>EpochAPI: POST /api/admin/epoch/reencrypt/:id { password }
+    EpochAPI->>CryptoSvc: reencrypt_document(doc_id, target_epoch=2)
+    CryptoSvc->>CryptoSvc: Authorized CP-ABE Decrypt original PDF
+    CryptoSvc->>CryptoSvc: Encrypt under updated policy: ({policy}) AND Epoch:2
+    CryptoSvc->>Disk: Write <new_uuid>.staged.enc
+    CryptoSvc->>Disk: Rename to <new_uuid>.enc
+    CryptoSvc->>DB: UPDATE documents SET stored_filename, policy, epoch=2
+    CryptoSvc->>Disk: DELETE old <prev_uuid>.enc
+    EpochAPI-->>Admin: 200 OK (Document re-encrypted to Epoch 2)
+
+    Note over Bob: Mathematical Revocation Demonstration
+    Bob->>DocAPI: Decrypt with Old Key v1 (Epoch:1)
+    DocAPI-->>Bob: 403 Forbidden (BSW07 pairing failure: Epoch 1 != Epoch 2)
+
+    Note over Alice: Key Renewal Demonstration
+    Alice->>EpochAPI: POST /api/auth/claim-key { password }
+    EpochAPI-->>Alice: Key v2 Issued embedding [Role:Engineer, Clearance:Level-3, Epoch:2]
+    Alice->>DocAPI: Decrypt with New Key v2 (Epoch:2)
+    DocAPI-->>Alice: 200 OK (Decryption SUCCESS - Document Recovered)

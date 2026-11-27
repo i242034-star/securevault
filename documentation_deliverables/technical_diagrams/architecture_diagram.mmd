@@ -1,0 +1,44 @@
+flowchart TD
+    subgraph ClientLayer["Frontend Client (React 19 + Vite)"]
+        UI["Tailwind CSS Web Application"]
+        Axios["Axios Interceptor (Bearer Token Session)"]
+        UI --> Axios
+    end
+
+    subgraph APILayer["Backend REST API (Flask)"]
+        ViteProxy["Vite Dev Reverse Proxy (:5173 -> :5000)"]
+        CORS["Strict CORS Allowlist (localhost:5173)"]
+        AuthBP["Auth Blueprint (/api/auth)"]
+        AdminBP["Admin Blueprint (/api/admin)"]
+        DocBP["Document Blueprint (/api/documents)"]
+        AuditBP["Audit Blueprint (/api/audit)"]
+        AttackBP["Attack Lab Blueprint (/api/attacks)"]
+
+        Axios --> ViteProxy --> CORS
+        CORS --> AuthBP & AdminBP & DocBP & AuditBP & AttackBP
+    end
+
+    subgraph SecurityCore["Core Cryptographic & Authorization Services"]
+        CryptoSvc["CryptoService (Singleton Orchestrator)"]
+        BSW07["CharmEngine (BSW07 CP-ABE over BN254 Curve)"]
+        Hybrid["HybridCipher (KEM via CP-ABE + DEM via AES-256-GCM)"]
+        KeyStore["KeyStore (PBKDF2-HMAC-SHA256 + AES-256-GCM)"]
+        AuditChain["AuditChain (Canonical JSON + HMAC-SHA256)"]
+        AuthUtil["AuthUtils (PBKDF2 Passwords + HMAC-SHA256 Tokens)"]
+        
+        AuthBP & AdminBP & DocBP & AuditBP --> CryptoSvc
+        CryptoSvc --> BSW07 & Hybrid & KeyStore & AuditChain
+        AuthBP --> AuthUtil
+        AttackSim["AttackSimulator (sandbox authority)"]
+        AttackBP --> AttackSim
+    end
+
+    subgraph StorageLayer["Persistence & Storage Layer"]
+        SQLite[("SQLite (securevault.db)\n• users\n• user_keys (encrypted_sk)\n• documents (metadata & policy)\n• audit_logs (chained hashes)\n• system_epochs")]
+        DiskDocs[("Encrypted Ciphertexts (/storage/encrypted/*.enc)")]
+        DiskKeys[("Master Authority (/storage/keys/master_secret_key.enc)")]
+        
+        CryptoSvc --> SQLite
+        Hybrid --> DiskDocs
+        KeyStore --> DiskKeys
+    end

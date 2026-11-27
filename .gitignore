@@ -1,0 +1,38 @@
+# Python virtual environments & interpreters
+venv/
+env/
+.venv/
+ENV/
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+
+# Node.js & Frontend build
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+*.log
+
+# Runtime cryptographic state — NEVER commit: encrypted master secret key,
+# public parameters, SQLite DB (password hashes, wrapped user keys) and
+# encrypted documents. A fresh authority is generated on first start.
+backend/storage/
+
+# Sensitive credentials & environment files
+.env
+.env.local
+.env.*.local
+
+# Operating System & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary test artifacts
+.pytest_cache/
+.coverage
+htmlcov/

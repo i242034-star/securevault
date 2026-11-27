@@ -1,0 +1,25 @@
+sequenceDiagram
+    autonumber
+    actor Uploader as Authorized User
+    participant DocAPI as Document API (/api/documents/upload)
+    participant Hybrid as HybridCipher
+    participant BSW07 as CharmEngine (BSW07)
+    participant Disk as Filesystem (/storage/encrypted/)
+    participant DB as SQLite (documents)
+    participant Audit as AuditChain
+
+    Uploader->>DocAPI: POST /api/documents/upload (PDF bytes, access_policy, attach_epoch)
+    DocAPI->>DocAPI: Verify Authorization Bearer token
+    alt attach_epoch is true
+        DocAPI->>DocAPI: final_policy = (access_policy) AND Epoch:<current_epoch>
+    end
+    DocAPI->>Hybrid: encrypt_document(PK, file_bytes, final_policy)
+    Hybrid->>BSW07: Sample random GT element M (KEM secret)
+    Hybrid->>Hybrid: AES_key = SHA-256(str(M))
+    Hybrid->>Hybrid: AES-256-GCM.encrypt(file_bytes) -> aes_ciphertext, nonce, tag
+    Hybrid->>BSW07: cpabe.encrypt(PK, M, final_policy) -> cpabe_ciphertext
+    Hybrid-->>DocAPI: Return package { cpabe_ciphertext, aes_ciphertext, nonce, tag }
+    DocAPI->>Disk: Write aes_ciphertext bytes to <uuid>.enc
+    DocAPI->>DB: INSERT INTO documents (stored_filename, cpabe_ciphertext, nonce, tag, epoch)
+    DocAPI->>Audit: record_audit_event(DOC_UPLOAD, SUCCESS)
+    DocAPI-->>Uploader: 201 Created { doc_id, filename, access_policy, epoch }
