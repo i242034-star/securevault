@@ -229,7 +229,7 @@ async function icon(Comp, color = "#FFFFFF", size = 256) {
   s.addText("Three tiers, one trusted authority", { placeholder: "title" });
   const cols = [
     [I.desktop, "Browser", "React 19 + Vite on Vercel", ["Login, Locker, Attack Lab", "Admin and audit pages", "Guided walkthrough"], C.background2, C.text1],
-    [I.server, "API + Authority", "Flask on Render (Docker)", ["BSW07 via Charm-Crypto", "AES-GCM, PBKDF2 key store", "HMAC audit chain"], C.text1, C.background1],
+    [I.server, "API + Authority", "Flask on Railway (Docker)", ["BSW07 via Charm-Crypto", "AES-GCM, PBKDF2 key store", "HMAC audit chain"], C.text1, C.background1],
     [I.db, "Untrusted storage", "SQLite + encrypted blobs", ["Only ciphertext on disk", "Keys wrapped per user", "Master key wrapped too"], C.background2, C.text1],
   ];
   cols.forEach(([img, h, sub, items, fill, fc], i) => {
@@ -393,8 +393,10 @@ async function icon(Comp, color = "#FFFFFF", size = 256) {
   circleIcon(s, I.play, 6.95, 1.5, 0.55, C.accent1, "Demo");
   T(s, "Demo passwords", { x: 6.95, y: 2.2, w: 2.4, h: 0.35, fontSize: 15, bold: true, color: C.text1 });
   T(s, "Alice@2026!\nDavid@2026!\nAdmin@2026!", { x: 6.95, y: 2.6, w: 2.4, h: 1.0, fontSize: 14, color: C.text1, fontFace: "Courier New" });
-  T(s, "Wake the free Render instance a minute before presenting", { x: 6.95, y: 3.7, w: 2.4, h: 0.85, fontSize: 12, italic: true, color: C.accent5 });
-  s.addNotes("Run the demo on the deployed URL. Order matters: show the denial before the attribute change so the flip is visible. If the network fails, fall back to the localhost build (backend in WSL, frontend npm run dev). Finish with the audit log's Verify Chain Integrity button.");
+  T(s, "Live at", { x: 6.95, y: 3.62, w: 2.4, h: 0.3, fontSize: 11, italic: true, color: C.accent5 });
+  T(s, "securevault-nine-rho.vercel.app", { x: 6.95, y: 3.9, w: 2.45, h: 0.35, fontSize: 11, bold: true, color: C.text1 });
+  T(s, "API on Railway · open it a minute early", { x: 6.95, y: 4.2, w: 2.45, h: 0.35, fontSize: 10, italic: true, color: C.accent5 });
+  s.addNotes("Run the demo on the deployed site, https://securevault-nine-rho.vercel.app (frontend on Vercel, API on Railway). A minute before presenting, open https://securevault-backend-production-8c4610c9.up.railway.app/api/health so the server is awake. Order matters: show the denial before the attribute change so the flip is visible. If the network fails, fall back to the localhost build (backend in WSL, frontend npm run dev). Finish with the audit log's Verify Chain Integrity button.");
 
   // =========================================================
   // 13. Close
@@ -413,7 +415,8 @@ async function icon(Comp, color = "#FFFFFF", size = 256) {
     T(s, d, { x: 1.3, y: y + 0.32, w: 5.0, h: 0.35, fontSize: 14, color: C.accent5 });
   });
   T(s, "Questions?", { x: 6.4, y: 1.9, w: 3.1, h: 0.9, fontSize: 40, bold: true, color: C.accent2, fontFace: "Cambria" });
-  T(s, "75 automated tests · 6 attacks blocked · code, report and slides on GitHub", { x: 6.4, y: 2.9, w: 3.1, h: 1.2, fontSize: 14, color: C.background1 });
+  T(s, "75 automated tests · 6 attacks blocked · live on Vercel + Railway", { x: 6.4, y: 2.9, w: 3.1, h: 0.8, fontSize: 14, color: C.background1 });
+  T(s, "securevault-nine-rho.vercel.app\ngithub.com/i242034-star/securevault", { x: 6.4, y: 3.75, w: 3.2, h: 0.6, fontSize: 11, bold: true, color: C.background1 });
   s.addNotes("Close on honest limitations, then open Q&A. Likely questions: why BSW07 over KP-ABE (policy chosen by the data owner at encryption time); how collusion resistance works (per-user r); what happens if the server is compromised (storage yes, live authority no); why not client-side decryption (pairing cost in the browser).");
 
   await pres.writeFile({ fileName: OUT });
