@@ -2,7 +2,11 @@
 
 **CS-3002 Information Security · Term Project · Topic 12: Attribute-Based Encryption (ABE) for Fine-Grained Access Control**
 
-Team: Abdullah Khan · Syed Ali Zaidi · Maryam Imran
+| Team member | Roll number |
+|---|---|
+| Abdullah Khan | 24i-2034 |
+| Syed Ali Zaidi | 24i-2098 |
+| Maryam Imran | 24i-2070 |
 
 SecureVault is a full-stack document locker in which **access control is enforced by cryptography, not by the server**.
 Every file is encrypted under an access policy such as

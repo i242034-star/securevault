@@ -23,7 +23,11 @@ CYAN = RGBColor(0, 128, 128)     # #008080
 DARK_GRAY = RGBColor(50, 50, 50)
 LIGHT_BG = "F4F6F9"
 
-TEAM_MEMBERS = ["Abdullah Khan", "Syed Ali Zaidi", "Maryam Imran"]
+TEAM_MEMBERS = [
+    ("Abdullah Khan", "24i-2034"),
+    ("Syed Ali Zaidi", "24i-2098"),
+    ("Maryam Imran", "24i-2070"),
+]
 TOTAL_TESTS = 75  # 17 crypto + 18 API + 10 revocation + 14 hardening + 16 attack lab
 
 SCREENSHOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -244,9 +248,10 @@ def build_docx_report(filepath):
     p_info.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_info.paragraph_format.space_before = Pt(40)
     p_info.paragraph_format.line_spacing = 1.2
-    r_cand = p_info.add_run("Team Members: ")
+    r_cand = p_info.add_run("Team Members:\n")
     r_cand.bold = True
-    p_info.add_run(", ".join(TEAM_MEMBERS) + "\n")
+    for name, roll in TEAM_MEMBERS:
+        p_info.add_run(f"{name}  ({roll})\n")
     r_sup = p_info.add_run("Academic Session: ")
     r_sup.bold = True
     p_info.add_run("2025 – 2026\n")
@@ -1118,7 +1123,8 @@ def build_pdf_report(filepath):
         "<b>A Final Year University Project Report Submitted in Partial Fulfillment<br/>"
         "of the Requirements for the Degree of<br/><br/>"
         "BACHELOR OF SCIENCE IN CYBER SECURITY / COMPUTER SCIENCE</b><br/><br/><br/>"
-        "<b>Candidate Name:</b> Abdullah Khan<br/>"
+        "<b>Team Members:</b><br/>"
+        + "".join(f"{name} ({roll})<br/>" for name, roll in TEAM_MEMBERS) +
         "<b>Academic Session:</b> 2025 – 2026<br/>"
         "<b>Department:</b> Department of Cyber Security & Computer Science<br/>"
         "<b>Submission Date:</b> November 2026"

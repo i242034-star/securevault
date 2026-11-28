@@ -36,7 +36,7 @@ async function icon(Comp, color = "#FFFFFF", size = 256) {
   const pres = new pptxgen();
   pres.layout = "LAYOUT_16x9"; // 10 x 5.625
   pres.title = "SecureVault: CP-ABE Document Locker";
-  pres.author = "Abdullah Khan, Syed Ali Zaidi, Maryam Imran";
+  pres.author = "Abdullah Khan (24i-2034), Syed Ali Zaidi (24i-2098), Maryam Imran (24i-2070)";
   pres.subject = "CS-3002 Information Security - Topic 12";
   pres.theme = { headFontFace: THEME.headFontFace, bodyFontFace: THEME.bodyFontFace };
   const C = pres.SchemeColor;
@@ -98,7 +98,7 @@ async function icon(Comp, color = "#FFFFFF", size = 256) {
   s.addText("SecureVault", { placeholder: "title" });
   s.addText("Fine-grained access control with Ciphertext-Policy Attribute-Based Encryption", { placeholder: "body" });
   circleIcon(s, I.lock, 0.6, 0.55, 0.85, C.accent1, "Vault");
-  T(s, "Abdullah Khan  ·  Syed Ali Zaidi  ·  Maryam Imran", { x: 0.6, y: 4.3, w: 8.8, h: 0.35, fontSize: 16, color: C.background1 });
+  T(s, "Abdullah Khan (24i-2034)  ·  Syed Ali Zaidi (24i-2098)  ·  Maryam Imran (24i-2070)", { x: 0.6, y: 4.3, w: 8.8, h: 0.35, fontSize: 14, color: C.background1 });
   T(s, "CS-3002 Information Security  ·  Topic 12  ·  November 2026", { x: 0.6, y: 4.7, w: 8.8, h: 0.3, fontSize: 12, color: C.accent5 });
   s.addNotes("Open with the one-line idea: in SecureVault the file itself carries its access rule, and the maths decides who can open it, not the server. Introduce the team and who will cover which part (core crypto, app/architecture, security evaluation).");
 
