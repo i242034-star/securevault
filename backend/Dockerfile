@@ -68,15 +68,15 @@ RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 COPY . .
 
 # Ensure storage directories exist and belong to the unprivileged runtime user.
-# UID 1000 is the stock "ubuntu" user in ubuntu:24.04, and is also the UID that
-# Hugging Face Spaces runs containers as. Only storage/ is writable; the code is not.
+# UID 1000 is the stock "ubuntu" user in ubuntu:24.04. Only storage/ is writable;
+# the code is not.
 RUN mkdir -p storage/keys storage/encrypted \
     && chown -R 1000:1000 storage
 
 # Drop root: the API never needs it at runtime
 USER 1000
 
-# Port 10000 (Render's default; Hugging Face reads app_port from README.md)
+# Default port; hosts such as Railway inject their own $PORT (8080), which the CMD below honours
 ENV PORT=10000
 EXPOSE 10000
 
